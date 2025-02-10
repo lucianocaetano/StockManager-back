@@ -23,7 +23,7 @@ Go to the project directory
 Ejecuta los contenedores de Docker
 
 ```bash
-  docker compose up
+  docker compose up --build
 ```
 
 Crea registros de prueba en la base de datos
