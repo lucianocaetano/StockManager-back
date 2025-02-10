@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id              Int      @id @default(autoincrement())
+  name            String
+  image           String?
+  description     String?
+  categoryId      Int
+  providerId      Int
+  quantityInStock Int
+  unitPrice       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  category     Category       @relation(fields: [categoryId], references: [id])
+  provider     Provider       @relation(fields: [providerId], references: [id])
+  sales        Sale[]         @relation("SaleProducts")
+  SaleProducts SaleProducts[]
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  products Product[]
+}
+
+model Provider {
+  id          Int      @id @default(autoincrement())
+  name        String
+  contactInfo String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  products Product[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  image           String?
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  sales Sale[]
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  sales Sale[]
+}
+
+model Sale {
+  id            Int      @id @default(autoincrement())
+  clientId      Int
+  userId        Int
+  totalAmount   Float
+  paymentMethod String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  client       Client         @relation(fields: [clientId], references: [id])
+  user         User           @relation(fields: [userId], references: [id])
+  products     Product[]      @relation("SaleProducts")
+  SaleProducts SaleProducts[]
+}
+
+model SaleProducts {
+  id        Int    @id @default(autoincrement())
+  saleId    Int
+  productId Int
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  sale    Sale    @relation(fields: [saleId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
